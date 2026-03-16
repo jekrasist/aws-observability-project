@@ -70,3 +70,27 @@ I configured a **Critical Alarm** on the `SuccessfulOrders` metric:
 ### Phase 3: Resolution & Recovery
 - **Action:** Cleared CPU stress and restarted the Flask application.
 - **Verification:** Sent 20 test requests via `curl` loop; metrics returned to baseline and Alarm returned to `OK`.
+
+
+## 📝 Incident Post-Mortem (Simulated)
+
+**Status:** Resolved ✅
+**Duration:** 15 Minutes
+
+### 1. Summary
+The service experienced a total outage and resource exhaustion. The observability pipeline successfully detected the failure within 2 minutes, alerting the engineering team via SNS.
+
+### 2. Timeline
+- **16:45:** Manual service termination (`kill -9`) and CPU stress test initiated.
+- **16:46:** CloudWatch Dashboard showed `SuccessfulOrders` dropped to 0 and `CPUUtilization` spiked to 100%.
+- **16:47:** CloudWatch Alarm transitioned to `ALARM` state.
+- **16:48:** SNS Notification email received by the administrator.
+- **17:00:** Service recovered by clearing stress and restarting the Flask process.
+
+### 3. Root Cause Analysis (RCA)
+- **Primary Failure:** Application process was terminated, leading to "Connection Refused" for all users.
+- **Secondary Failure:** Resource exhaustion (CPU) caused potential latency for any surviving processes.
+
+### 4. Corrective Actions
+- Updated Alarm configuration to treat "Missing Data" as breaching to ensure alerts trigger even when the application is completely silent.
+- Verified recovery by generating 20 test transactions, returning metrics to baseline levels.
