@@ -54,3 +54,19 @@ I configured a **Critical Alarm** on the `SuccessfulOrders` metric:
 2. **Start the Agent:** `/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl ...`
 3. **Generate Traffic:** ```bash
    for i in {1..20}; do curl http://[EC2_IP]:8080/order; sleep 1; done
+
+
+## 🚨 Final Incident Report: Service Interruption Test
+
+### Phase 1: Detection
+- **Trigger:** Manual termination of the Flask service and CPU stress test.
+- **Metric Observation:** `SuccessfulOrders` dropped to 0; `CPUUtilization` hit 100%.
+- **Alarm State:** Transitioned to `ALARM` (Treating missing data as breaching).
+
+### Phase 2: Notification
+- **Channel:** AWS SNS (Simple Notification Service).
+- **Result:** Received automated email alert within 2 minutes of the breach.
+
+### Phase 3: Resolution & Recovery
+- **Action:** Cleared CPU stress and restarted the Flask application.
+- **Verification:** Sent 20 test requests via `curl` loop; metrics returned to baseline and Alarm returned to `OK`.
